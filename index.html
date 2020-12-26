@@ -1,210 +1,287 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Horario 5to SAD</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-</head>
-<script>
-// Numero de copos, recomendados entre 30 y 40
-var nieve_cantidad=70;
+  <script>
+    var gravedad = .5;
+    var numHijos = 10;
 
-// Colores de los copos se mostraran de forma aleatoria
-var nieve_colorr=new Array("#aaaacc","#ddddFF","#ccccDD")
+    var numParticulas = 100;
+    var particulasCreadas = 0;
 
-// Tipo de letra de los copos
-var nieve_tipo=new Array("Arial Black","Arial Narrow","Times","Comic Sans MS")
+    function crearParticula() {
+      var particula = document.createElement("div");
+      particula.className = "particula";
 
-// Valor o letra de los copos
-var nieve_letra="*"
+      var y = window.innerHeight;
+      var x = Math.random() * window.innerWidth;
 
-// velocidad de caida
-var nieve_velocidad=1.0;
+      particula.style.top = y + "px";
+      particula.style.left = x + "px";
 
-// tamaño mas grande de los copos
-var nieve_cantidadsize=30
+      var velocidadY = -15 - (Math.random() * 15);
 
-// tamaño mas pequeño de los copos
-var nieve_chico=8
+      particula.setAttribute("data-velocidad-y", velocidadY);
+      particula.setAttribute("data-velocidad-x", "0");
+      particula.setAttribute("data-padre", "true");
 
-// 1 toda la pagina - 2 zona izquierda - 3 centro de pagina - 4 zona derecha
-var nieve_zona=1
+      particula.style.background = getRandomColor();
 
-var nieve=new Array()
-var marginbottom
-var marginright
-var timer
-var i_nieve=0
-var x_mv=new Array();
-var crds=new Array();
-var lftrght=new Array();
-var browserinfos=navigator.userAgent
-var ie5=document.all&&document.getElementById&&!browserinfos.match(/Opera/)
-var ns6=document.getElementById&&!document.all
-var opera=browserinfos.match(/Opera/)  
-var browserok=ie5||ns6||opera
+      document.getElementsByTagName("body")[0].append(particula);
 
-function aleatorio(range) {    
-    rand=Math.floor(range*Math.random())
-    return rand
-}
+      particulasCreadas++;
 
-function initnieve() {
-    if (ie5 || opera) {
-        marginbottom = document.body.clientHeight
-        marginright = document.body.clientWidth
+      if (particulasCreadas < numParticulas) {
+        setTimeout(crearParticula, 50 + (Math.random() * 150));
+      }
     }
-    else if (ns6) {
-        marginbottom = window.innerHeight
-        marginright = window.innerWidth
-    }
-    var nievesizerange=nieve_cantidadsize-nieve_chico
-    for (i=0;i<=nieve_cantidad;i++) {
-        crds[i] = 0;                      
-        lftrght[i] = Math.random()*15;        
-        x_mv[i] = 0.03 + Math.random()/10;
-        nieve[i]=document.getElementById("s"+i)
-        nieve[i].style.fontFamily=nieve_tipo[aleatorio(nieve_tipo.length)]
-        nieve[i].size=aleatorio(nievesizerange)+nieve_chico
-        nieve[i].style.fontSize=nieve[i].size
-        nieve[i].style.color=nieve_colorr[aleatorio(nieve_colorr.length)]
-        nieve[i].sink=nieve_velocidad*nieve[i].size/5
-        if (nieve_zona==1) {nieve[i].posx=aleatorio(marginright-nieve[i].size)}
-        if (nieve_zona==2) {nieve[i].posx=aleatorio(marginright/2-nieve[i].size)}
-        if (nieve_zona==3) {nieve[i].posx=aleatorio(marginright/2-nieve[i].size)+marginright/4}
-        if (nieve_zona==4) {nieve[i].posx=aleatorio(marginright/2-nieve[i].size)+marginright/2}
-        nieve[i].posy=aleatorio(2*marginbottom-marginbottom-2*nieve[i].size)
-        nieve[i].style.left=nieve[i].posx + 'px';
-        nieve[i].style.top=nieve[i].posy + 'px';
-    }
-    movenieve()
-}
 
-function movenieve() {
-    for (i=0;i<=nieve_cantidad;i++) {
-        crds[i] += x_mv[i];
-        nieve[i].posy+=nieve[i].sink
-        nieve[i].style.left=nieve[i].posx+lftrght[i]*Math.sin(crds[i]) + 'px';;
-        nieve[i].style.top=nieve[i].posy + 'px';
+    function start() {
+      crearParticula();
+    }
 
-        if (nieve[i].posy>=marginbottom-2*nieve[i].size || parseInt(nieve[i].style.left)>(marginright-3*lftrght[i])){
-            if (nieve_zona==1) {nieve[i].posx=aleatorio(marginright-nieve[i].size)}
-            if (nieve_zona==2) {nieve[i].posx=aleatorio(marginright/2-nieve[i].size)}
-            if (nieve_zona==3) {nieve[i].posx=aleatorio(marginright/2-nieve[i].size)+marginright/4}
-            if (nieve_zona==4) {nieve[i].posx=aleatorio(marginright/2-nieve[i].size)+marginright/2}
-            nieve[i].posy=0
+    function update() {
+      var particulas = document.getElementsByClassName("particula");
+      for (var p = 0; p < particulas.length; p++) {
+        var particula = particulas[p];
+
+        var velocidadY = parseFloat(particula.getAttribute("data-velocidad-y"));
+        velocidadY += gravedad;
+
+        particula.setAttribute("data-velocidad-y", velocidadY);
+
+        var top = particula.style.top ? particula.style.top : "0"; //10px
+        top = parseFloat(top.replace("px", ""));
+        top += velocidadY;
+        particula.style.top = top + "px";
+
+        var velocidadX = parseFloat(particula.getAttribute("data-velocidad-x"));
+
+        var left = particula.style.left ? particula.style.left : "0";
+        left = parseFloat(left.replace("px", ""));
+        left += velocidadX;
+        particula.style.left = left + "px";
+
+        var padre = particula.getAttribute("data-padre");
+
+        if (velocidadY >= 0 && padre === "true") {
+          explotar(particula);
         }
-    }
-    var timer=setTimeout("movenieve()",50)
-}
 
-for (i=0;i<=nieve_cantidad;i++) {
-    document.write("<span id='s"+i+"' style='position:absolute;top:-"+nieve_cantidadsize+"'>"+nieve_letra+"</span>")
-}
-if (browserok) {
-    window.onload=initnieve
-}
+        if (top > window.innerHeight) {
+          particula.remove();
+        }
+      }
+
+      setTimeout(update, 20);
+    }
+
+    function explotar(particula) {
+
+      for (var h = 0; h < numHijos; h++) {
+        var hijo = document.createElement("div");
+        hijo.className = "particula";
+
+        hijo.style.top = particula.style.top;
+        hijo.style.left = particula.style.left;
+        hijo.style.background = particula.style.background;
+
+        var velocidadY = (Math.random() * 20) - 18;
+        hijo.setAttribute("data-velocidad-y", velocidadY);
+        var velocidadX = (Math.random() * 16) - 8;
+        hijo.setAttribute("data-velocidad-x", velocidadX);
+
+
+        hijo.setAttribute("data-padre", false);
+
+        //Agregar el hijo :) :) :)
+        document.getElementsByTagName("body")[0].append(hijo);
+      }
+
+      particula.remove();
+    }
+
+
+    window.onload = function () {
+      start();
+
+      update();
+    };
+
+
+    //utilerias
+    function getRandomColor() {
+      var letters = '0123456789ABCDEF';
+      var color = '#';
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
   </script>
+  <style>
+    .particula {
+      width: 8px;
+      height: 8px;
+      background: black;
+      border-radius: 20%;
+      position: absolute;
+    }
+
+    .particula[data-padre="false"] {
+      width: 5px;
+      height: 5px;
+    }
+
+    body {
+      background-color: black;
+      background-image: url('fondo.png');
+      background-repeat: no-repeat;
+      background-position: -20px 210px;
+      background-size: 100% 100%;
+      background-attachment: fixed;
+    }
+    
+    table,
+    th,
+    td {
+      border: 2px solid #ffffff;
+      margin: auto;
+      font-style: helvetica;
+      font-size: 16.63px;
+    }
+
+    th,
+    td {
+      padding: 1em;
+      text-align: center;
+      color: #ffffff;
+      margin: auto;
+    }
+
+    i {
+      text-align: center;
+      color: #ffffff;
+    }
+
+    th {
+      font-size: 20px;
+    }
+  </style>
+</head>
+
 <body>
-<style>
-body{
-  background-color: rgb(143, 21, 21);
-}
-table, th, td {
-  border: 2px solid rgb(255, 255, 255);
-  border="1" style="margin: 0 auto;
-  align="center";
-  font-size: 100%;
-}
-th, td {
-  padding: 1px;
-  text-align: center;
-  color: #ffffff;
-  font-size: 100%;
-}
-i{
-  text-align: center;
-  color:black;
-  font-size: 1600%;
-  color: #ffffff;
-}
-h2{
-    color: #ffffff;
-}
-h3{
-  color: #fcfdfd;
-}
-h4{
-  text-align: center;
-  margin:  auto;
-  padding: 1%;
-}
-</style>
-<center><h2>Horario 5to SAD</h2></center>
-<table style="margin: 0 auto;">
-  <tr>
-    <th scope="col"><h3>Horas</h3></th>
-    <th scope="col"><h3>Lunes</h3></th>
-    <th scope="col"><h3>Martes</h3></th>
-    <th scope="col"><h3>Miercoles</h3></th>
-    <th scope="col"><h3>Jueves</h3></th>
-    <th scope="col"><h3>Viernes</h3></th>
-  </tr>
-  <tr>
-    <td><h3><p>1er hora</p><b>7:00 - 8:00</b></h3></td>
-    <td><h4>Ing. En Software II: z8ahgb</h4><p><a href = "https://us02web.zoom.us/j/86771662534" target="_blank"><i class="fa fa-desktop" ></i></p></a></td>
-    <td></td>
-    <td></td>
-    <td><h4>Redes de Computadoras I</h4><p><a href = "https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i class="fa fa-wifi"></i></p></a></td>
-    <td><h4>Ing. En Software II: z8ahgb</h4><p><a href = "https://us02web.zoom.us/j/86771662534" target="_blank"><i class="fa fa-desktop"></i></p></a></td>
-  </tr>
-  <tr>
-    <td><h3><p>2da hora</p><b>8:00 - 9:00</b></h3></td>
-    <td><h4>Ing. En Software II: z8ahgb</h4><p><a href = "https://us02web.zoom.us/j/86771662534" target="_blank"><i class="fa fa-desktop"></i></p></a></td>
-    <td><h4>Programacion IV</h4></h4><p><a href = "https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09" target="_blank"><i class="fa fa-file-code-o"></i></p></a></td>
-    <td><h4>Redes de Computadoras I</h4><p><a href = "https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i class="fa fa-wifi"></i></p></a></td>
-    <td><h4>Redes de Computadoras I</h4><p><a href = "https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i class="fa fa-wifi"></i></p></a></td>
-    <td><h4>Ing. En Software II: z8ahgb</h4><p><a href = "https://us02web.zoom.us/j/86771662534" target="_blank"><i class="fa fa-desktop"></i></p></a></td>
-  </tr>
-  <tr>
-    <td><h3><p>3ra hora</p><b>9:00 - 10:00</b></h3></td>
-    <td><h4>Programacion IV</h4></h4><p><a href = "https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09" target="_blank"><i class="fa fa-file-code-o"></i></p></a></td>
-    <td><h4>Programacion IV</h4></h4><p><a href = "https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09" target="_blank"><i class="fa fa-file-code-o"></i></p></a></td>
-    <td><h4>Redes de Computadoras I</h4><p><a href = "https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i class="fa fa-wifi"></i></p></a></td>
-    <td><h4>Ing. En Software II: z8ahgb</h4><p><a href = "https://us02web.zoom.us/j/86771662534" target="_blank"><i class="fa fa-desktop"></i></p></a></td>
-    <td><h4>Metodologia de la Investigacion</h4><p><a href = "https://us02web.zoom.us/j/3729217965?pwd=QWZpMkRBS0hleXluWmJISEZWWDdKZz09" target="_blank"><i class="fa fa-book"></i></p></a></td>
-  </tr>
-  <tr>
-    <td><h3><p>4ta hora</p><b>10:00 - 11:00</b></h3></td>
-    <td><h4>Estadistica</h4><p><a href = "https://us04web.zoom.us/j/71166458604?pwd=cmpKbmF4SkplNVQyZCtob1ZyVjdlQT09" target="_blank"><i class="fa fa-line-chart" aria-hidden="true"></i></p></a></td>
-    <td><h4>Estadistica</h4><p><a href = "https://us04web.zoom.us/j/72390060359?pwd=dzdiQ1orUTRGd2FFZk1oc1BRRlBpUT09" target="_blank"><i class="fa fa-line-chart" aria-hidden="true"></i></p></a></td>
-    <td><h4>Programacion IV</h4></h4><p><a href = "https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09" target="_blank"><i class="fa fa-file-code-o"></i></p></a></td>
-    <td><h4>Ing. En Software II: z8ahgb</h4><p><a href = "https://us02web.zoom.us/j/86771662534" target="_blank"><i class="fa fa-desktop"></i></p></a></td>
-    <td><h4>Metodologia de la Investigacion</h4><p><a href = "https://us02web.zoom.us/j/3729217965?pwd=QWZpMkRBS0hleXluWmJISEZWWDdKZz09" target="_blank"><i class="fa fa-book"></i></p></a></td>
-  </tr>
-  <tr>
-    <td><h3><p>5ta hora</p><b>11:00 - 12:00</b></h3></td>
-    <td><h4>Estadistica</h4><p><a href = "https://us04web.zoom.us/j/71166458604?pwd=cmpKbmF4SkplNVQyZCtob1ZyVjdlQT09" target="_blank"><i class="fa fa-line-chart" aria-hidden="true"></i></p></a></td>
-    <td><h4>Estadistica</h4><p><a href = "https://us04web.zoom.us/j/72390060359?pwd=dzdiQ1orUTRGd2FFZk1oc1BRRlBpUT09" target="_blank"><i class="fa fa-line-chart" aria-hidden="true"></i></p></a></td>
-    <td><h4>Programacion IV</h4></h4><p><a href = "https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09" target="_blank"><i class="fa fa-file-code-o"></i></p></a></td>
-    <td><h4>Programacion IV</h4></h4><p><a href = "https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09" target="_blank"><i class="fa fa-file-code-o"></i></p></a></td>
-    <td><h4>Redes de Computadoras I</h4><p><a href = "https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i class="fa fa-wifi"></i></p></a></td>
-  </tr>
-  <tr>
-    <td><h3><p>6ta hora</p><b>12:30 - 13:30</b></h3></td>
-    <td><h4>Ecologia</h4><p><a href = "https://us04web.zoom.us/j/78272857388?pwd=MjUwS3hvdU0xY0tRYStSVHdqRWM5UT09" target="_blank"><i class="fa fa-leaf" aria-hidden="true"></i></p></a></td>
-    <td><h4>Redes de Computadoras I</h4><p><a href = "https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i class="fa fa-wifi"></i></p></a></td>
-    <td><h4>Metodologia de la Investigacion</h4><p><a href = "https://us02web.zoom.us/j/3729217965?pwd=QWZpMkRBS0hleXluWmJISEZWWDdKZz09" target="_blank"><i class="fa fa-book"></i></p></a></td>
-    <td></td>
-    <td><h4>Ecologia</h4><p><a href = "https://us04web.zoom.us/j/78272857388?pwd=MjUwS3hvdU0xY0tRYStSVHdqRWM5UT09" target="_blank"><i class="fa fa-leaf" aria-hidden="true"></i></p></a></td>
-  </tr>
-  <tr>
-    <td><h3<p>7ma hora</p><b>13:30 - 14:30</b></h3></td>
-    <td><h4>Ecologia</h4><p><a href = "https://us04web.zoom.us/j/78272857388?pwd=MjUwS3hvdU0xY0tRYStSVHdqRWM5UT09" target="_blank"><i class="fa fa-leaf" aria-hidden="true"></i></p></a></td>
-    <td></td>
-    <td><h4>Metodologia de la Investigacion</h4><p><a href = "https://us02web.zoom.us/j/3729217965?pwd=QWZpMkRBS0hleXluWmJISEZWWDdKZz09" target="_blank"><i class="fa fa-book"></i></p></a></td>
-    <td></td>
-    <td><h4>Ecologia</h4><p><a href = "https://us04web.zoom.us/j/78272857388?pwd=MjUwS3hvdU0xY0tRYStSVHdqRWM5UT09" target="_blank"><i class="fa fa-leaf" aria-hidden="true"></i></p></a></td>
-  </tr>
+  <table>
+    <tbody>
+      <tr>
+        <th>Horas/Dias</th>
+        <th>Lunes</th>
+        <th>Martes</th>
+        <th>Miercoles</th>
+        <th>Jueves</th>
+        <th>Viernes</th>
+      </tr>
+      <tr>
+        <th>1era hora<br>7:00 - 8:00</th>
+        <td>Ing. Software II: z8ahgb</p><a href="https://us02web.zoom.us/j/86771662534" target="_blank"><i
+              class="fa fa-desktop"></i></a></td>
+        <td></td>
+        <td></td>
+        <td>Redes de Computadoras I</p><a
+            href="https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i
+              class="fa fa-wifi"></i></a></td>
+        <td>Ing. Software II: z8ahgb</p><a href="https://us02web.zoom.us/j/86771662534" target="_blank"><i
+              class="fa fa-desktop"></i></a></td>
+      </tr>
+      <tr>
+        <th>2da hora<br>8:00 - 9:00</th>
+        <td>Ing. Software II: z8ahgb</p><a href="https://us02web.zoom.us/j/86771662534" target="_blank"><i
+              class="fa fa-desktop"></i></a></td>
+        <td>Programacion IV</p><a href="https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09"
+            target="_blank"><i class="fa fa-file-code-o"></i></a></td>
+        <td>Redes de Computadoras I</p><a
+            href="https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i
+              class="fa fa-wifi"></i></a></td>
+        <td>Redes de Computadoras I</p><a
+            href="https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i
+              class="fa fa-wifi"></i></a></td>
+        <td>Ing. Software II: z8ahgb</p><a href="https://us02web.zoom.us/j/86771662534" target="_blank"><i
+              class="fa fa-desktop"></i></a></td>
+      </tr>
+      <tr>
+        <th>3ra hora<br>9:00 - 10:00</th>
+        <td>Programacion IV</p><a href="https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09"
+            target="_blank"><i class="fa fa-file-code-o"></i></a></td>
+        <td>Programacion IV</p><a href="https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09"
+            target="_blank"><i class="fa fa-file-code-o"></i></a></td>
+        <td>Redes de Computadoras I</p><a
+            href="https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i
+              class="fa fa-wifi"></i></a></td>
+        <td>Ing. Software II: z8ahgb</p><a href="https://us02web.zoom.us/j/86771662534" target="_blank"><i
+              class="fa fa-desktop"></i></a></td>
+        <td>Metodologia de la Investigacion</p><a
+            href="https://us02web.zoom.us/j/3729217965?pwd=QWZpMkRBS0hleXluWmJISEZWWDdKZz09" target="_blank"><i
+              class="fa fa-book"></i></a></td>
+      </tr>
+      <tr>
+        <th>4ta hora<br>10:00 - 11:00</th>
+        <td>Estadistica</p><a href="https://us04web.zoom.us/j/71166458604?pwd=cmpKbmF4SkplNVQyZCtob1ZyVjdlQT09"
+            target="_blank"><i class="fa fa-line-chart" aria-hidden="true"></i></a></td>
+        <td>Estadistica</p><a href="https://us04web.zoom.us/j/72390060359?pwd=dzdiQ1orUTRGd2FFZk1oc1BRRlBpUT09"
+            target="_blank"><i class="fa fa-line-chart" aria-hidden="true"></i></a></td>
+        <td>Programacion IV</p><a href="https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09"
+            target="_blank"><i class="fa fa-file-code-o"></i></a></td>
+        <td>Ing. Software II: z8ahgb</p><a href="https://us02web.zoom.us/j/86771662534" target="_blank"><i
+              class="fa fa-desktop"></i></a></td>
+        <td>Metodologia de la Investigacion</p><a
+            href="https://us02web.zoom.us/j/3729217965?pwd=QWZpMkRBS0hleXluWmJISEZWWDdKZz09" target="_blank"><i
+              class="fa fa-book"></i></a></td>
+      </tr>
+      <tr>
+        <th>5ta hora<br>11:00 - 12:00</th>
+        <td>Estadistica</p><a href="https://us04web.zoom.us/j/71166458604?pwd=cmpKbmF4SkplNVQyZCtob1ZyVjdlQT09"
+            target="_blank"><i class="fa fa-line-chart" aria-hidden="true"></i></a></td>
+        <td>Estadistica</p><a href="https://us04web.zoom.us/j/72390060359?pwd=dzdiQ1orUTRGd2FFZk1oc1BRRlBpUT09"
+            target="_blank"><i class="fa fa-line-chart" aria-hidden="true"></i></a></td>
+        <td>Programacion IV</p><a href="https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09"
+            target="_blank"><i class="fa fa-file-code-o"></i></a></td>
+        <td>Programacion IV</p><a href="https://us04web.zoom.us/j/77776021433?pwd=UFEwM3NPU0cxYmM0N3RyMXpacElVUT09"
+            target="_blank"><i class="fa fa-file-code-o"></i></a></td>
+        <td>Redes de Computadoras I</p><a
+            href="https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i
+              class="fa fa-wifi"></i></a></td>
+      </tr>
+      <tr>
+        <th>6ta hora<br>12:30 - 13:30</th>
+        <td>Ecologia</p><a href="https://us04web.zoom.us/j/78272857388?pwd=MjUwS3hvdU0xY0tRYStSVHdqRWM5UT09"
+            target="_blank"><i class="fa fa-leaf" aria-hidden="true"></i></a></td>
+        <td>Redes de Computadoras I</p><a
+            href="https://us04web.zoom.us/j/79612397613?pwd=Q1ZCK2N5cDl6VlVIWVlTM2c3OUpEQT09" target="_blank"><i
+              class="fa fa-wifi"></i></a></td>
+        <td>Metodologia de la Investigacion</p><a
+            href="https://us02web.zoom.us/j/3729217965?pwd=QWZpMkRBS0hleXluWmJISEZWWDdKZz09" target="_blank"><i
+              class="fa fa-book"></i></a></td>
+        <td></td>
+        <td>Ecologia</p><a href="https://us04web.zoom.us/j/78272857388?pwd=MjUwS3hvdU0xY0tRYStSVHdqRWM5UT09"
+            target="_blank"><i class="fa fa-leaf" aria-hidden="true"></i></a></td>
+      </tr>
+      <tr>
+        <th>7ma hora<br>13:30 - 14:30</th>
+        <td>Ecologia</p><a href="https://us04web.zoom.us/j/78272857388?pwd=MjUwS3hvdU0xY0tRYStSVHdqRWM5UT09"
+            target="_blank"><i class="fa fa-leaf" aria-hidden="true"></i></a></td>
+        <td></td>
+        <td>Metodologia de la Investigacion</p><a
+            href="https://us02web.zoom.us/j/3729217965?pwd=QWZpMkRBS0hleXluWmJISEZWWDdKZz09" target="_blank"><i
+              class="fa fa-book"></i></a></td>
+        <td></td>
+        <td>Ecologia</p><a href="https://us04web.zoom.us/j/78272857388?pwd=MjUwS3hvdU0xY0tRYStSVHdqRWM5UT09"
+            target="_blank"><i class="fa fa-leaf" aria-hidden="true"></i></a></td>
+      </tr>
+    </tbody>
+  </table>
 </body>
+
 </html>

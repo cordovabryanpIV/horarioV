@@ -2,14 +2,14 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Horario 5to S"A"D</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <script>
     var gravedad = .5;
-    var numHijos = 10;
+    var numHijos = 15;
 
-    var numParticulas = 100;
+    var numParticulas = 120;
     var particulasCreadas = 0;
 
     function crearParticula() {
@@ -128,7 +128,7 @@
       height: 8px;
       background: black;
       border-radius: 20%;
-      position: absolute;
+      position: fixed;
     }
 
     .particula[data-padre="false"] {
